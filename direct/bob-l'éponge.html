@@ -5,10 +5,9 @@
     <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="author" content="Crimson">
-    <title>Direct | Crimson LE site de streaming</title>
-    <meta name="description" content="Direct | Regarder bob l'éponge en streaming gratuitement et sans publicité ni inscription avec Crimson !" />
-    
-  
+    <title>Direct | Crimson - Le site de streaming</title>
+    <meta name="description" content="Direct | Regarder Bob l'éponge en streaming gratuitement et sans publicité ni inscription avec Crimson !" />
+
     <!-- Favicon -->
     <link rel="icon" type="image/png" sizes="32x32" href="../img/favicon/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="../img/favicon/favicon-16x16.png">
@@ -16,28 +15,27 @@
     <link rel="icon" type="image/png" sizes="192x192" href="../img/favicon/android-chrome-192x192.png">
     <link rel="icon" type="image/png" sizes="512x512" href="../img/favicon/android-chrome-512x512.png">
     <link rel="manifest" href="../img/favicon/site.webmanifest">
-  
+
     <!-- LOAD LOCAL CSS -->
-  <link rel="stylesheet" href="../css/bootstrap.min.css">
-  <link rel="stylesheet" href="../css/megamenu.css">
-  <link rel="stylesheet" href="../css/style-three.css" id="theme">
-  <link rel="stylesheet" href="../css/ionicons.css">
-  <link rel="stylesheet" href="../css/font-awesome.min.css">
-  <link rel="stylesheet" href="../css/responsive.css">
-  <link rel="stylesheet" href="../css/splide.min.css">
-  <link rel="stylesheet" href="../css/player-crimson.css">
-  <link rel="stylesheet" href="../css/jquery-eu-cookie-law-popup.css">
- 
+    <link rel="stylesheet" href="../css/bootstrap.min.css">
+    <link rel="stylesheet" href="../css/megamenu.css">
+    <link rel="stylesheet" href="../css/style-three.css" id="theme">
+    <link rel="stylesheet" href="../css/ionicons.css">
+    <link rel="stylesheet" href="../css/font-awesome.min.css">
+    <link rel="stylesheet" href="../css/responsive.css">
+    <link rel="stylesheet" href="../css/splide.min.css">
+    <link rel="stylesheet" href="../css/player-crimson.css">
+    <link rel="stylesheet" href="../css/jquery-eu-cookie-law-popup.css">
 
     <!-- Player -->
     <link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css">
-     
+
     <!-- SweetAlert2 -->
     <script src="../js/sweetalert2@11.js"></script>
-  
+
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css?family=Nunito:300,400,600,700,800&display=swap" rel="stylesheet">
-  
+
     <style type="text/css">
         .search .search-input input[type=text]::placeholder, 
         .search .search-input input[type=text].focus {
@@ -150,62 +148,44 @@
    <script src="../js/jquery.nice-select.min.js"></script>  
    <script src="../js/megamenu.js"></script> 
    <script src="../js/custom-main.js"></script>
-   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+   
+   <script>
+       // Initialize Plyr
+       const player = new Plyr('#player');
 
- <!-- Player Script -->
- <script type="text/javascript">
-    document.addEventListener('DOMContentLoaded', () => {
-        const player = new Plyr('#player', {
-            controls: ['play-large', 'play', 'progress', 'current-time', 'mute', 'volume', 'pip', 'fullscreen'],
-            quality: { default: 720, options: [720] },
-            playsinline: true,
-            disableContextMenu: true,
-            keyboard: { focused: true, global: true }
-        });
+       // HLS.js support
+       const video = document.getElementById('player');
+       const videoSource = document.getElementById('video-source');
 
-        const videoElement = document.getElementById('player');
-        const hlsSource = videoElement.querySelector('source').src;
+       if (Hls.isSupported()) {
+           const hls = new Hls();
+           hls.loadSource(videoSource.src);
+           hls.attachMedia(video);
 
-        if (Hls.isSupported()) {
-            const hls = new Hls();
-            hls.loadSource(hlsSource);
-            hls.attachMedia(videoElement);
+           hls.on(Hls.Events.MANIFEST_PARSED, function() {
+               player.play();
+           });
 
-            // Reload video when it ends
-            videoElement.addEventListener('ended', () => {
-                hls.loadSource(hlsSource);
-                videoElement.play();  // Replay video
-            });
-
-            // Handle HLS errors
-            hls.on(Hls.Events.ERROR, (event, data) => {
-                if (data.fatal) {
-                    switch (data.type) {
-                        case Hls.ErrorTypes.NETWORK_ERROR:
-                            console.log("Erreur réseau, tentative de récupération...");
-                            hls.startLoad();
-                            break;
-                        case Hls.ErrorTypes.MEDIA_ERROR:
-                            console.log("Erreur média, tentative de récupération...");
-                            hls.recoverMediaError();
-                            break;
-                        default:
-                            console.log("Erreur fatale, rechargement...");
-                            hls.destroy();
-                            hls.loadSource(hlsSource);
-                            hls.attachMedia(videoElement);
-                            break;
-                    }
-                }
-            });
-        } else if (videoElement.canPlayType('application/vnd.apple.mpegurl')) {
-            // Fallback for native HLS support (Safari)
-            videoElement.src = hlsSource;
-            videoElement.addEventListener('ended', () => {
-                videoElement.play(); // Replay video
-            });
-        }
-    });
+           hls.on(Hls.Events.ERROR, function(event, data) {
+               if (data.fatal) {
+                   switch (data.fatal) {
+                       case Hls.ErrorTypes.NETWORK_ERROR:
+                           console.error("Erreur de réseau");
+                           break;
+                       case Hls.ErrorTypes.MEDIA_ERROR:
+                           console.error("Erreur de média");
+                           break;
+                       case Hls.ErrorTypes.OTHER_ERROR:
+                           console.error("Erreur autre");
+                           break;
+                   }
+               }
+           });
+       } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+           video.src = videoSource.src;
+           player.play();
+       }
    </script>
 </body>
 </html>
